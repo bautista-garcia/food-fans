@@ -2,6 +2,10 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import logo from "@/public/logo.jpeg"
+import Image from "next/image"
 
 export default function FloatCard({
   children,
@@ -15,15 +19,15 @@ export default function FloatCard({
   const [size, setSize] = useState(initialSize)
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
+  const [resizeHandle, setResizeHandle] = useState(null)
   const cardRef = useRef(null)
   const dragStart = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
-    // Set initial position when component mounts
     setPosition(initialPosition)
   }, [initialPosition])
 
-  const handleMouseDown = (e, action) => {
+  const handleMouseDown = (e, action, handle = null) => {
     e.preventDefault()
     if (action === 'drag') {
       setIsDragging(true)
@@ -33,9 +37,14 @@ export default function FloatCard({
       }
     } else if (action === 'resize') {
       setIsResizing(true)
+      setResizeHandle(handle)
       dragStart.current = {
-        x: e.clientX - size.width,
-        y: e.clientY - size.height
+        x: e.clientX,
+        y: e.clientY,
+        width: size.width,
+        height: size.height,
+        left: position.x,
+        top: position.y
       }
     }
   }
@@ -44,8 +53,6 @@ export default function FloatCard({
     if (isDragging) {
       const newX = e.clientX - dragStart.current.x
       const newY = e.clientY - dragStart.current.y
-
-      // Prevent dragging outside viewport
       const maxX = window.innerWidth - size.width
       const maxY = window.innerHeight - size.height
 
@@ -54,21 +61,65 @@ export default function FloatCard({
         y: Math.min(Math.max(0, newY), maxY)
       })
     } else if (isResizing) {
-      const newWidth = Math.max(
-        minSize.width,
-        Math.min(maxSize.width, e.clientX - dragStart.current.x)
-      )
-      const newHeight = Math.max(
-        minSize.height,
-        Math.min(maxSize.height, e.clientY - dragStart.current.y)
-      )
+      const deltaX = e.clientX - dragStart.current.x
+      const deltaY = e.clientY - dragStart.current.y
+      let newWidth = size.width
+      let newHeight = size.height
+      let newX = position.x
+      let newY = position.y
+
+      switch (resizeHandle) {
+        case 'e':
+          newWidth = Math.min(Math.max(minSize.width, dragStart.current.width + deltaX), maxSize.width)
+          break
+        case 'w':
+          const widthDiff = Math.min(Math.max(minSize.width - dragStart.current.width, deltaX), maxSize.width - dragStart.current.width)
+          newWidth = dragStart.current.width - widthDiff
+          newX = dragStart.current.left + widthDiff
+          break
+        case 's':
+          newHeight = Math.min(Math.max(minSize.height, dragStart.current.height + deltaY), maxSize.height)
+          break
+        case 'n':
+          const heightDiff = Math.min(Math.max(minSize.height - dragStart.current.height, deltaY), maxSize.height - dragStart.current.height)
+          newHeight = dragStart.current.height - heightDiff
+          newY = dragStart.current.top + heightDiff
+          break
+        case 'se':
+          newWidth = Math.min(Math.max(minSize.width, dragStart.current.width + deltaX), maxSize.width)
+          newHeight = Math.min(Math.max(minSize.height, dragStart.current.height + deltaY), maxSize.height)
+          break
+        case 'sw':
+          newHeight = Math.min(Math.max(minSize.height, dragStart.current.height + deltaY), maxSize.height)
+          const swWidthDiff = Math.min(Math.max(minSize.width - dragStart.current.width, deltaX), maxSize.width - dragStart.current.width)
+          newWidth = dragStart.current.width - swWidthDiff
+          newX = dragStart.current.left + swWidthDiff
+          break
+        case 'ne':
+          newWidth = Math.min(Math.max(minSize.width, dragStart.current.width + deltaX), maxSize.width)
+          const neHeightDiff = Math.min(Math.max(minSize.height - dragStart.current.height, deltaY), maxSize.height - dragStart.current.height)
+          newHeight = dragStart.current.height - neHeightDiff
+          newY = dragStart.current.top + neHeightDiff
+          break
+        case 'nw':
+          const nwWidthDiff = Math.min(Math.max(minSize.width - dragStart.current.width, deltaX), maxSize.width - dragStart.current.width)
+          const nwHeightDiff = Math.min(Math.max(minSize.height - dragStart.current.height, deltaY), maxSize.height - dragStart.current.height)
+          newWidth = dragStart.current.width - nwWidthDiff
+          newHeight = dragStart.current.height - nwHeightDiff
+          newX = dragStart.current.left + nwWidthDiff
+          newY = dragStart.current.top + nwHeightDiff
+          break
+      }
+
       setSize({ width: newWidth, height: newHeight })
+      setPosition({ x: newX, y: newY })
     }
   }
 
   const handleMouseUp = () => {
     setIsDragging(false)
     setIsResizing(false)
+    setResizeHandle(null)
   }
 
   useEffect(() => {
@@ -92,26 +143,74 @@ export default function FloatCard({
         top: `${position.y}px`,
         width: `${size.width}px`,
         height: `${size.height}px`,
-        zIndex: 10 // Ensure card stays above map
+        zIndex: 10
       }}
     >
       <CardHeader
         className="cursor-move p-4 bg-gray-50/50"
         onMouseDown={(e) => handleMouseDown(e, 'drag')}
       >
-        <CardTitle className="text-lg font-semibold text-gray-800">
+        {/* <CardTitle className="text-lg font-semibold text-gray-800">
           {title}
-        </CardTitle>
+        </CardTitle> */}
+        <div className="flex justify-between items-center mb-6">
+          <Link href="/" className="text-xl font-semibold text-gray-800">
+            <Image
+              src={logo}
+              alt="foodReview logo"
+              className="max-w-[80px] object-cover"
+            />
+          </Link>
+          <Link href="/review">
+            <Button className="bg-gray-900 text-white hover:bg-gray-800">
+              + Add Review
+            </Button>
+          </Link>
+        </div>
       </CardHeader>
 
       <CardContent className="p-4 overflow-auto h-[calc(100%-4rem)] custom-scrollbar">
         {children}
       </CardContent>
 
-      <div
-        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
-        onMouseDown={(e) => handleMouseDown(e, 'resize')}
-      />
+      {/* Resize handles */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Corners */}
+        <div
+          className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize pointer-events-auto"
+          onMouseDown={(e) => handleMouseDown(e, 'resize', 'nw')}
+        />
+        <div
+          className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize pointer-events-auto"
+          onMouseDown={(e) => handleMouseDown(e, 'resize', 'ne')}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize pointer-events-auto"
+          onMouseDown={(e) => handleMouseDown(e, 'resize', 'sw')}
+        />
+        <div
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize pointer-events-auto"
+          onMouseDown={(e) => handleMouseDown(e, 'resize', 'se')}
+        />
+
+        {/* Edges */}
+        <div
+          className="absolute top-0 left-4 right-4 h-2 cursor-n-resize pointer-events-auto"
+          onMouseDown={(e) => handleMouseDown(e, 'resize', 'n')}
+        />
+        <div
+          className="absolute bottom-0 left-4 right-4 h-2 cursor-s-resize pointer-events-auto"
+          onMouseDown={(e) => handleMouseDown(e, 'resize', 's')}
+        />
+        <div
+          className="absolute left-0 top-4 bottom-4 w-2 cursor-w-resize pointer-events-auto"
+          onMouseDown={(e) => handleMouseDown(e, 'resize', 'w')}
+        />
+        <div
+          className="absolute right-0 top-4 bottom-4 w-2 cursor-e-resize pointer-events-auto"
+          onMouseDown={(e) => handleMouseDown(e, 'resize', 'e')}
+        />
+      </div>
     </Card>
   )
 }

@@ -142,28 +142,12 @@ export default function MapPage() {
 
       {initialCardPosition && (
         <FloatCard
-          title="Food Reviews"
           initialPosition={initialCardPosition}
           initialSize={{ width: 400, height: window.innerHeight - 40 }}
           minSize={{ width: 300, height: 400 }}
           maxSize={{ width: 600, height: window.innerHeight - 40 }}
         >
           <div className="flex flex-col h-full overflow-hidden">
-            <div className="flex justify-between items-center mb-6">
-              <Link href="/" className="text-xl font-semibold text-gray-800">
-                <Image
-                  src={logo}
-                  alt="foodReview logo"
-                  className="max-w-[80px] object-cover"
-                />
-              </Link>
-              <Link href="/review">
-                <Button className="bg-gray-900 text-white hover:bg-gray-800">
-                  + Add Review
-                </Button>
-              </Link>
-            </div>
-
             {/* Filter Section */}
             <div className="mb-6 space-y-4">
               <div>
