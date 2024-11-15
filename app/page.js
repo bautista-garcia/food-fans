@@ -121,11 +121,10 @@ export default function Home() {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <StarIcon
                     key={star}
-                    className={`w-6 h-6 cursor-pointer ${
-                      formData.rating >= star
-                        ? `${starColors[star - 1]} fill-current`
-                        : "text-gray-300"
-                    }`}
+                    className={`w-6 h-6 cursor-pointer ${formData.rating >= star
+                      ? `${starColors[star - 1]} fill-current`
+                      : "text-gray-300"
+                      }`}
                     onClick={() => handleRatingChange(star)}
                   />
                 ))}
