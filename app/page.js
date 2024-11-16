@@ -1,12 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import logo from "@/public/logo.jpeg"
-import Image from "next/image"
-import FloatCard from "@/components/ui/float-card"
-import Map from "@/components/ui/Map"
+import FloatCard from "@/components/float-card"
+import Map from "@/components/Map"
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN
 
