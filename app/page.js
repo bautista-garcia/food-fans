@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { StarIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const starColors = [
   "text-red-400",
@@ -18,6 +19,8 @@ const starColors = [
 ];
 
 export default function Home() {
+  const { data: session, status } = useSession();
+
   const [formData, setFormData] = useState({
     restaurantName: "",
     location: "",
@@ -58,6 +61,13 @@ export default function Home() {
   const handleRatingChange = (rating) => {
     setFormData((prev) => ({ ...prev, rating }));
   };
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      // Redirige al usuario si no está autenticado
+      router.push("/login");
+    }
+  }, [status, router]);
 
   return (
     <div className="container mx-auto px-4 py-8">
