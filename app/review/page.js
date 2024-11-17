@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { StarIcon } from "lucide-react";
+
+import { useSession } from "next-auth/react";
 
 const starColors = [
   "text-red-400",
@@ -18,6 +20,16 @@ const starColors = [
 ];
 
 export default function ReviewPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      // Redirige al usuario si no está autenticado
+      router.push("/login");
+    }
+  }, [status, router]);
+
   const [formData, setFormData] = useState({
     restaurantName: "",
     location: "",
@@ -27,7 +39,6 @@ export default function ReviewPage() {
     tags: "",
     review: "",
   });
-  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,7 +72,7 @@ export default function ReviewPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {console.log('Hola bro')}
+      {console.log("Hola bro")}
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-semibold text-center">
@@ -122,10 +133,11 @@ export default function ReviewPage() {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <StarIcon
                     key={star}
-                    className={`w-6 h-6 cursor-pointer ${formData.rating >= star
-                      ? `${starColors[star - 1]} fill-current`
-                      : "text-gray-300"
-                      }`}
+                    className={`w-6 h-6 cursor-pointer ${
+                      formData.rating >= star
+                        ? `${starColors[star - 1]} fill-current`
+                        : "text-gray-300"
+                    }`}
                     onClick={() => handleRatingChange(star)}
                   />
                 ))}
