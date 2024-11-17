@@ -1,171 +1,230 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { StarIcon } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useState, useEffect, useCallback } from "react";
+import FloatCard from "@/components/float-card";
+import Map from "@/components/Map";
 
-const starColors = [
-  "text-red-400",
-  "text-orange-400",
-  "text-yellow-400",
-  "text-green-400",
-  "text-blue-400",
-];
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-export default function Home() {
-  const { data: session, status } = useSession();
-
-  const [formData, setFormData] = useState({
-    restaurantName: "",
-    location: "",
-    latitude: "",
-    longitude: "",
-    rating: 0,
-    tags: "",
-    review: "",
+export default function MapPage() {
+  const [reviews, setReviews] = useState([]);
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [filteredReviews, setFilteredReviews] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [minRating, setMinRating] = useState(1);
+  const [viewState, setViewState] = useState({
+    longitude: -57.9545,
+    latitude: -34.9205,
+    zoom: 13,
   });
-  const router = useRouter();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // In a real app, you'd send this data to an API
-    console.log("Submitted:", formData);
+  // Add state for sidebar position
+  const [isDragging, setIsDragging] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(350); // Initial width in pixels
+  const [initialCardPosition, setInitialCardPosition] = useState(null);
 
-    // Simulate adding to the list
-    const response = await fetch("/api/reviews", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    if (response.ok) {
-      router.push("/map");
-    } else {
-      console.error("Failed to submit review");
-    }
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleMouseMove = useCallback(
+    (e) => {
+      if (isDragging) {
+        const newWidth = window.innerWidth - e.clientX;
+        setSidebarWidth(Math.max(300, Math.min(600, newWidth))); // Min 300px, Max 600px
+      }
+    },
+    [isDragging]
+  );
 
-  const handleRatingChange = (rating) => {
-    setFormData((prev) => ({ ...prev, rating }));
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    document.removeEventListener("mousemove", handleMouseMove);
+    document.removeEventListener("mouseup", handleMouseUp);
   };
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      // Redirige al usuario si no está autenticado
-      router.push("/login");
+    // In a real app, you'd fetch this data from an API
+    const mockReviews = [
+      {
+        id: 1,
+        restaurantName: "La Pizza de Tano",
+        location: "La Plata, Buenos Aires",
+        rating: 4,
+        tags: ["pizza", "italian"],
+        latitude: -34.9205,
+        longitude: -57.9536,
+      },
+      {
+        id: 2,
+        restaurantName: "El Rincón de las Empanadas",
+        location: "La Plata, Buenos Aires",
+        rating: 5,
+        tags: ["empanadas", "argentinian"],
+        latitude: -34.9215,
+        longitude: -57.9545,
+      },
+      {
+        id: 3,
+        restaurantName: "Parrilla Don Carlos",
+        location: "La Plata, Buenos Aires",
+        rating: 4,
+        tags: ["asado", "argentinian"],
+        latitude: -34.9195,
+        longitude: -57.9526,
+      },
+      {
+        id: 4,
+        restaurantName: "Café Martinez",
+        location: "La Plata, Buenos Aires",
+        rating: 5,
+        tags: ["coffee", "pastries"],
+        latitude: -34.9225,
+        longitude: -57.9556,
+      },
+      {
+        id: 5,
+        restaurantName: "La Trattoria",
+        location: "La Plata, Buenos Aires",
+        rating: 4,
+        tags: ["pasta", "italian"],
+        latitude: -34.9185,
+        longitude: -57.9516,
+      },
+    ];
+    setReviews(mockReviews);
+  }, []);
+
+  const getAllTags = useCallback(() => {
+    const tags = new Set();
+    reviews.forEach((review) => {
+      review.tags.forEach((tag) => tags.add(tag));
+    });
+    return Array.from(tags);
+  }, [reviews]);
+
+  useEffect(() => {
+    let filtered = reviews;
+
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter((review) =>
+        review.tags.some((tag) => selectedTags.includes(tag))
+      );
     }
-  }, [status, router]);
+
+    filtered = filtered.filter((review) => review.rating >= minRating);
+
+    setFilteredReviews(filtered);
+  }, [reviews, selectedTags, minRating]);
+
+  const handleReviewClick = useCallback((review) => {
+    setSelectedReview(review);
+    setViewState({
+      longitude: review.longitude,
+      latitude: review.latitude,
+      zoom: 12,
+    });
+  }, []);
+
+  useEffect(() => {
+    setInitialCardPosition({
+      x: window.innerWidth - 450,
+      y: 20,
+    });
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold text-center">
-            Add Food Review
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="restaurantName">Restaurant Name</Label>
-                <Input
-                  id="restaurantName"
-                  name="restaurantName"
-                  required
-                  value={formData.restaurantName}
-                  onChange={handleChange}
-                />
+    <div className="fixed inset-0 overflow-hidden">
+      <Map reviews={filteredReviews} />
+
+      {initialCardPosition && (
+        <FloatCard
+          initialPosition={initialCardPosition}
+          initialSize={{ width: 400, height: window.innerHeight - 40 }}
+          minSize={{ width: 300, height: 400 }}
+          maxSize={{ width: 600, height: window.innerHeight - 40 }}
+        >
+          <div className="flex flex-col h-full overflow-hidden">
+            {/* Filter Section */}
+            <div className="mb-6 space-y-4">
+              <div>
+                <label className="text-sm text-gray-500 mb-2 block">Tags</label>
+                <div className="flex flex-wrap gap-2">
+                  {getAllTags().map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() =>
+                        setSelectedTags((prev) =>
+                          prev.includes(tag)
+                            ? prev.filter((t) => t !== tag)
+                            : [...prev, tag]
+                        )
+                      }
+                      className={`px-3 py-1 text-xs rounded-full transition-all duration-200 ${
+                        selectedTags.includes(tag)
+                          ? "bg-gray-900 text-white"
+                          : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  name="location"
-                  required
-                  value={formData.location}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="latitude">Latitude</Label>
-                <Input
-                  id="latitude"
-                  name="latitude"
-                  type="number"
-                  step="any"
-                  required
-                  value={formData.latitude}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="longitude">Longitude</Label>
-                <Input
-                  id="longitude"
-                  name="longitude"
-                  type="number"
-                  step="any"
-                  required
-                  value={formData.longitude}
-                  onChange={handleChange}
+
+              <div>
+                <label className="text-sm text-gray-500 mb-2 block">
+                  Rating {minRating}+
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="5"
+                  value={minRating}
+                  onChange={(e) => setMinRating(Number(e.target.value))}
+                  className="w-full accent-gray-900"
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Rating</Label>
-              <div className="flex space-x-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <StarIcon
-                    key={star}
-                    className={`w-6 h-6 cursor-pointer ${
-                      formData.rating >= star
-                        ? `${starColors[star - 1]} fill-current`
-                        : "text-gray-300"
-                    }`}
-                    onClick={() => handleRatingChange(star)}
-                  />
-                ))}
-              </div>
+
+            {/* Reviews List */}
+            <div className="space-y-3 overflow-y-auto">
+              {filteredReviews.map((review) => (
+                <div
+                  key={review.id}
+                  onClick={() => handleReviewClick(review)}
+                  className="p-3 rounded-lg transition-all duration-200 cursor-pointer hover:bg-gray-50 border border-transparent hover:border-gray-100"
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-medium text-gray-900">
+                      {review.restaurantName}
+                    </h3>
+                    <span className="text-sm text-gray-500">
+                      {"★".repeat(review.rating)}
+                      {"☆".repeat(5 - review.rating)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 mb-1">
+                    {review.location}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {review.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-xs px-2 py-0.5 bg-gray-50 text-gray-600 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="tags">Tags (comma-separated)</Label>
-              <Input
-                id="tags"
-                name="tags"
-                value={formData.tags}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="review">Review</Label>
-              <Textarea
-                id="review"
-                name="review"
-                rows={4}
-                value={formData.review}
-                onChange={handleChange}
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              Submit Review
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+        </FloatCard>
+      )}
     </div>
   );
 }

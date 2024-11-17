@@ -19,27 +19,28 @@ const Navbar = () => {
           className="max-w-[80px] object-cover"
         />
       </Link>
-      <div className="space-x-4 flex items-center">
-        <Link
+      <div className="space-x-6 flex items-center">
+        {/* <Link
           href="/"
           className="text-gray-600 hover:text-gray-800 sm:text-lg font-semibold"
         >
           Add Review
-        </Link>
+        </Link> */}
         <Link
-          href="/map"
+          href="/"
           className="text-gray-600 hover:text-gray-800 sm:text-lg font-semibold"
         >
           Map
         </Link>
         {!session && (
-          <Link
-            href="/login"
-            className="px-3 py-2 rounded-md text-sm text-white bg-orange-500 hover:bg-orange-600"
-            type="submit"
-          >
-            Login
-          </Link>
+          // <Link
+          //   href="/login"
+          //   className="px-3 py-2 rounded-md text-sm text-white bg-orange-500 hover:bg-orange-600"
+          //   type="submit"
+          // >
+          //   Login
+          // </Link>
+          <></>
         )}
         {session && (
           <UserDropdown

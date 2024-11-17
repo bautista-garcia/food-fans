@@ -18,7 +18,7 @@ export default function Login() {
   const loginWithGoogle = async () => {
     try {
       setIsLoading(true);
-      await signIn("google", { callbackUrl: "http://localhost:3000/map" });
+      await signIn("google", { callbackUrl: "http://localhost:3000" });
     } catch (error) {
       setIsLoading(false);
     } finally {
