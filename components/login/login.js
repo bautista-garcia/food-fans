@@ -8,7 +8,12 @@ import Image from "next/image";
 import Link from "next/link";
 import bg from "@/public/login-bg.png";
 
+import { signIn } from "next-auth/react";
+
 export default function Login() {
+  const loginWithGoogle = () =>
+    signIn("google", { callbackUrl: "http://localhost:3000/map" });
+
   return (
     <div className="min-h-screen grid md:grid-cols-2 gap-0">
       <div className="relative hidden md:block">
@@ -52,7 +57,7 @@ export default function Login() {
                       className="text-sm text-blue-600 hover:underline"
                       href="#"
                     >
-                      forgot password
+                      Forgot password?
                     </Link>
                   </div>
                   <Input id="password" required type="password" />
@@ -80,7 +85,11 @@ export default function Login() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button className="w-full" variant="outline">
+                  <Button
+                    onClick={loginWithGoogle}
+                    className="w-full"
+                    variant="outline"
+                  >
                     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                       <path
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -114,7 +123,10 @@ export default function Login() {
                 </div>
                 <div className="text-center text-sm">
                   Don&apos;t have an account?{" "}
-                  <Link className="text-blue-600 hover:underline" href="#">
+                  <Link
+                    className="text-blue-600 hover:underline"
+                    href="/register"
+                  >
                     Sign Up
                   </Link>
                 </div>
