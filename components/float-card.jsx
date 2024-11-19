@@ -6,6 +6,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import logo from "@/public/logo.jpeg"
 import Image from "next/image"
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation"
+
+
+
 
 export default function FloatCard({
   children,
@@ -22,10 +27,21 @@ export default function FloatCard({
   const [resizeHandle, setResizeHandle] = useState(null)
   const cardRef = useRef(null)
   const dragStart = useRef({ x: 0, y: 0 })
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
   useEffect(() => {
     setPosition(initialPosition)
   }, [initialPosition])
+
+  const handleAdd = () => {
+    if (status === "authenticated") {
+      router.push("/addRestaurant")
+    } else {
+      router.push("/login")
+    }
+  }
+
 
   const handleMouseDown = (e, action, handle = null) => {
     e.preventDefault()
@@ -161,11 +177,11 @@ export default function FloatCard({
               className="max-w-[80px] object-cover"
             />
           </Link>
-          <Link href="/review">
-            <Button className="bg-gray-900 text-white hover:bg-gray-800">
-              + Add Review
+          <div>
+            <Button onClick={handleAdd} className="bg-gray-900 text-white hover:bg-gray-800">
+              + Add Restaurant
             </Button>
-          </Link>
+          </div>
         </div>
       </CardHeader>
 

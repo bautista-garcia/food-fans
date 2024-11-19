@@ -3,8 +3,21 @@
 import { useState, useEffect, useCallback } from "react";
 import FloatCard from "@/components/float-card";
 import Map from "@/components/Map";
+import { getRestaurants } from "@/utils/supabaseClient";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+// Fetch de restaurantes DB (Ejemplo de campos en "components/restaurants/RestaurantList.jsx")
+const fetchRestaurants = async () => {
+  try {
+    const data = await getRestaurants()
+    setRestaurants(data)
+    setLoading(false)
+  } catch (err) {
+    setError('Failed to fetch restaurants')
+    setLoading(false)
+  }
+}
 
 export default function MapPage() {
   const [reviews, setReviews] = useState([]);
