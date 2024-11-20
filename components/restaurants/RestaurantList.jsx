@@ -1,34 +1,35 @@
-"use client"
-import { useState, useEffect } from 'react'
-import RestaurantCard from './RestaurantCard'
-import { getRestaurants } from "@/utils/supabaseClient" // Adjust the import path as needed
+"use client";
+import { useState, useEffect } from "react";
+import RestaurantCard from "./RestaurantCard";
+import { getRestaurants } from "@/utils/supabaseClient"; // Adjust the import path as needed
+import LoadingSpinner from "../LoadingSpinner";
 
 const RestaurantList = () => {
-  const [restaurants, setRestaurants] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [restaurants, setRestaurants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const data = await getRestaurants()
-        setRestaurants(data)
-        setLoading(false)
+        const data = await getRestaurants();
+        setRestaurants(data);
+        setLoading(false);
       } catch (err) {
-        setError('Failed to fetch restaurants')
-        setLoading(false)
+        setError("Failed to fetch restaurants");
+        setLoading(false);
       }
-    }
+    };
 
-    fetchRestaurants()
-  }, [])
+    fetchRestaurants();
+  }, []);
 
   if (loading) {
-    return <div className="text-center">Loading restaurants...</div>
+    return <LoadingSpinner />;
   }
 
   if (error) {
-    return <div className="text-center text-red-500">{error}</div>
+    return <div className="text-center text-red-500">{error}</div>;
   }
 
   return (
@@ -40,7 +41,7 @@ const RestaurantList = () => {
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default RestaurantList
+export default RestaurantList;

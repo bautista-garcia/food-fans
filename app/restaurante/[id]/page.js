@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import ReviewCard from "@/components/review/ReviewCard";
-import { getRestaurant, getReseña, getReseñas} from "@/utils/supabaseClient";
+import { getRestaurant, getReseña, getReseñas } from "@/utils/supabaseClient";
 import { useEffect, useState } from "react";
 import ReviewModal from "@/components/review/ReviewModal";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Component({ params: id }) {
   const [restaurant, setRestaurant] = useState(null);
@@ -34,8 +35,6 @@ export default function Component({ params: id }) {
     fetchData(id.id);
   }, [id.id]);
 
-
-
   const renderStars = (rating) => {
     return Array.from({ length: 5 }).map((_, index) => (
       <Star
@@ -52,7 +51,7 @@ export default function Component({ params: id }) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        Loading...
+        <LoadingSpinner />
       </div>
     );
   }
@@ -82,7 +81,7 @@ export default function Component({ params: id }) {
               <h1 className="text-4xl font-bold mb-2">{restaurant.nombre}</h1>
               <div className="flex items-center gap-2 mb-4">
                 {restaurant.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="bg-white/20">
+                  <Badge key={tag} variant="secondary" className="bg-white">
                     {tag}
                   </Badge>
                 ))}

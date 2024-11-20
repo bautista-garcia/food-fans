@@ -33,14 +33,13 @@ const Navbar = () => {
           Map
         </Link>
         {!session && (
-          // <Link
-          //   href="/login"
-          //   className="px-3 py-2 rounded-md text-sm text-white bg-orange-500 hover:bg-orange-600"
-          //   type="submit"
-          // >
-          //   Login
-          // </Link>
-          <></>
+          <Link
+            href="/login"
+            className="px-3 py-2 rounded-md text-sm text-white bg-orange-500 hover:bg-orange-600"
+            type="submit"
+          >
+            Login
+          </Link>
         )}
         {session && (
           <UserDropdown
