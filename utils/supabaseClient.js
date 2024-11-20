@@ -50,13 +50,13 @@ export async function getReseña(id) {
   const { data, error } = await supabase
     .from("Reseña")
     .select("*")
-    .eq("id", id);
+    .eq("idres", id);
   if (error) {
     console.error("error", error);
   } else {
     // console.log('res.id', data)
   }
-  return data[0];
+  return data;
 }
 
 export async function pushReseñas(reseña) {
@@ -89,7 +89,7 @@ export async function uploadFile(file, bucket, filePath) {
   return { error: null };
 }
 
-export async function getUrl(bucket, filePath, expiry = 60000) {
+export async function getUrl(bucket, filePath, expiry = 60000000) {
     if (!bucket || !filePath) {
       return { signedUrl: null, error: 'El bucket o la ruta del archivo no fueron proporcionados.' };
     }

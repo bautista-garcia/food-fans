@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { pushRestaurant, uploadFile, getUrl } from '@/utils/supabaseClient';
 import ImageUploader from '@/components/form/ImageUploader';
+import LocationAutocomplete from './LocationAutocomplete';
 
 export default function RestaurantForm({ restauranteInicial = {} }){
   const [restaurante, setRestaurante] = useState({
@@ -19,6 +20,14 @@ export default function RestaurantForm({ restauranteInicial = {} }){
   });
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locationData, setLocationData] = useState({
+    address: '',
+    coordinates: null,
+  })
+
+  const handleLocationChange = (data) => {
+    setLocationData(data)
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,6 +65,9 @@ export default function RestaurantForm({ restauranteInicial = {} }){
       const tags = restaurante.tags.split(',').map(tag => tag.trim());
       const newRestaurante = {
         ...restaurante,
+        ubicacion: locationData.address,
+        lat: locationData.coordinates.lat,
+        lng: locationData.coordinates.lng,
         tags,
         foto: fotoUrl
       };
@@ -114,15 +126,12 @@ export default function RestaurantForm({ restauranteInicial = {} }){
 
           <div className="space-y-2">
             <Label htmlFor="ubicacion">Ubicación</Label>
-            <Input
-              id="ubicacion"
-              name="ubicacion"
-              value={restaurante.ubicacion}
-              onChange={handleChange}
+            <LocationAutocomplete
+              onLocationChange={handleLocationChange}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          {/* <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="lat">Latitud</Label>
               <Input
@@ -143,7 +152,7 @@ export default function RestaurantForm({ restauranteInicial = {} }){
                 onChange={handleChange}
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="space-y-2">
             <Label htmlFor="rating">Rating</Label>

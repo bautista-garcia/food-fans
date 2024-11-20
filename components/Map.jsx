@@ -46,8 +46,8 @@ export default function Map({ reviews }) {
       // Create popup
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
         <div class="p-2">
-          <h3 class="font-bold">${review.restaurantName}</h3>
-          <p class="text-sm">${review.location}</p>
+          <h3 class="font-bold">${review.nombre}</h3>
+          <p class="text-sm">${review.ubicacion}</p>
           <p class="text-sm">Rating: ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</p>
           <p class="text-sm">${review.tags.join(', ')}</p>
         </div>
@@ -55,7 +55,10 @@ export default function Map({ reviews }) {
 
       // Create and add marker
       const marker = new mapboxgl.Marker(el)
-        .setLngLat([review.longitude, review.latitude])
+        .setLngLat([
+          Math.max(Math.min(review.lng, 90), -90), 
+          Math.max(Math.min(review.lat, 90), -90)
+        ])
         .setPopup(popup)
         .addTo(map.current);
 
