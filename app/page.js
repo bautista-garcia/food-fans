@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import FloatCard from "@/components/float-card";
 import Map from "@/components/Map";
 import { getRestaurants } from "@/utils/supabaseClient";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -60,7 +62,6 @@ export default function MapPage() {
     };
     fetchRestaurants();
   }, []);
-
 
   const getAllTags = useCallback(() => {
     const tags = new Set();
@@ -178,15 +179,24 @@ export default function MapPage() {
                       <p className="text-sm text-gray-500 mb-1">
                         {review.ubicacion}
                       </p>
-                      <div className="flex flex-wrap gap-1">
-                        {review.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-xs px-2 py-0.5 bg-gray-50 text-gray-600 rounded-full"
+                      <div className="flex justify-between">
+                        <div className="flex flex-wrap gap-1">
+                          {review.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-xs px-2 py-0.5 bg-gray-50 text-gray-600 rounded-full"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                        <Link href={`/restaurante/${review.id}`}>
+                          <Button
+                            className="bg-gray-900 text-white hover:bg-gray-800"
                           >
-                            {tag}
-                          </span>
-                        ))}
+                            Ver Reseñas
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   ))}

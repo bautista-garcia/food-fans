@@ -9,7 +9,7 @@ import ReviewCard from "@/components/review/ReviewCard";
 import { getRestaurant } from "@/utils/supabaseClient";
 import { useEffect, useState } from "react";
 
-export default function Component() {
+export default function Component({ params: id }) {
   const [restaurant, setRestaurant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,21 +24,21 @@ export default function Component() {
         setLoading(false);
       }
     };
-    fetchRestaurant(1);
+    fetchRestaurant(id.id);
   }, []);
 
-  // reviews = [
-  //   {
-  //     id: "rev1",
-  //     user: "María S.",
-  //     dishImage: "/plato.jpg", // Cambiado a la imagen plato.jpg en la carpeta public
-  //     dishName: "Cuarto de Libra",
-  //     createdAt: "2024-02-15",
-  //     description:
-  //       "Al tibu le encanto ¡Absolutamente divino! La salsa estaba perfectamente reducida y la carne increíblemente tierna. Uno de los mejores platos franceses que he probado fuera de París.",
-  //     rating: 5,
-  //   },
-  // ];
+  const reviews = [
+    {
+      id: "rev1",
+      user: "María S.",
+      dishImage: "/plato.jpg", // Cambiado a la imagen plato.jpg en la carpeta public
+      dishName: "Cuarto de Libra",
+      createdAt: "2024-02-15",
+      description:
+        "Al tibu le encanto ¡Absolutamente divino! La salsa estaba perfectamente reducida y la carne increíblemente tierna. Uno de los mejores platos franceses que he probado fuera de París.",
+      rating: 5,
+    },
+  ];
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }).map((_, index) => (
@@ -104,12 +104,12 @@ export default function Component() {
             </div>
 
             {/* Sección de Reseñas */}
-            {/* <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">Reseñas</h2>
-            {restaurant.reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} />
-            ))}
-          </div> */}
+            <div className="space-y-6">
+              <h2 className="text-2xl font-semibold">Reseñas</h2>
+              {reviews.map((review) => (
+                <ReviewCard key={review.id} review={review} />
+              ))}
+            </div>
           </div>
         </div>
       )}
