@@ -55,7 +55,10 @@ export default function Map({ reviews }) {
 
       // Create and add marker
       const marker = new mapboxgl.Marker(el)
-        .setLngLat([review.longitude, review.latitude])
+        .setLngLat([
+          Math.max(Math.min(review.lng, 90), -90), 
+          Math.max(Math.min(review.lat, 90), -90)
+        ])
         .setPopup(popup)
         .addTo(map.current);
 
