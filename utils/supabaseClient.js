@@ -89,7 +89,7 @@ export async function uploadFile(file, bucket, filePath) {
   return { error: null };
 }
 
-export async function getUrl(bucket, filePath, expiry = 60000) {
+export async function getUrl(bucket, filePath, expiry = 60000000) {
     if (!bucket || !filePath) {
       return { signedUrl: null, error: 'El bucket o la ruta del archivo no fueron proporcionados.' };
     }
