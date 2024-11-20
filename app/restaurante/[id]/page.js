@@ -6,39 +6,35 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import ReviewCard from "@/components/review/ReviewCard";
-import { getRestaurant } from "@/utils/supabaseClient";
+import { getRestaurant, getReseña, getReseñas} from "@/utils/supabaseClient";
 import { useEffect, useState } from "react";
+import ReviewModal from "@/components/review/ReviewModal";
 
 export default function Component({ params: id }) {
   const [restaurant, setRestaurant] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   useEffect(() => {
-    const fetchRestaurant = async (id) => {
+    const fetchData = async (id) => {
       try {
-        const data = await getRestaurant(id);
-        setRestaurant(data);
+        const [restaurantData, reviewsData] = await Promise.all([
+          getRestaurant(id),
+          getReseña(id),
+        ]);
+        setRestaurant(restaurantData);
+        setReviews(reviewsData);
         setLoading(false);
       } catch (err) {
-        setError("Failed to fetch restaurants");
+        setError("Failed to fetch data");
         setLoading(false);
       }
     };
-    fetchRestaurant(id.id);
-  }, []);
+    fetchData(id.id);
+  }, [id.id]);
 
-  const reviews = [
-    {
-      id: "rev1",
-      user: "María S.",
-      dishImage: "/plato.jpg", // Cambiado a la imagen plato.jpg en la carpeta public
-      dishName: "Cuarto de Libra",
-      createdAt: "2024-02-15",
-      description:
-        "Al tibu le encanto ¡Absolutamente divino! La salsa estaba perfectamente reducida y la carne increíblemente tierna. Uno de los mejores platos franceses que he probado fuera de París.",
-      rating: 5,
-    },
-  ];
+
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }).map((_, index) => (
@@ -52,6 +48,22 @@ export default function Component({ params: id }) {
       />
     ));
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -106,9 +118,16 @@ export default function Component({ params: id }) {
             {/* Sección de Reseñas */}
             <div className="space-y-6">
               <h2 className="text-2xl font-semibold">Reseñas</h2>
-              {reviews.map((review) => (
-                <ReviewCard key={review.id} review={review} />
-              ))}
+              {reviews && (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <ReviewCard key={review.id} review={review} />
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="mt-6">
+              <ReviewModal idres={id.id} />
             </div>
           </div>
         </div>

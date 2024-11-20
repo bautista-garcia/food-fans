@@ -27,8 +27,8 @@ export default function ReviewCard({ review }) {
         <div className="grid md:grid-cols-[300px,1fr] gap-6">
           <div className="relative h-[200px]">
             <Image
-              src={review.dishImage}
-              alt={review.dishName}
+              src={review.foto}
+              alt={review.plato}
               fill
               className="object-cover"
             />
@@ -36,10 +36,10 @@ export default function ReviewCard({ review }) {
           <div className="p-6">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="font-semibold text-lg">{review.dishName}</h3>
+                <h3 className="font-semibold text-lg">{review.plato}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Reseña por {review.user} •{" "}
-                  {new Date(review.createdAt).toLocaleDateString()}
+                  Reseña por {review.usuario} •{" "}
+                  {new Date(review.created_at).toLocaleDateString()}
                 </p>
               </div>
               <div className="flex items-center gap-1">
@@ -47,10 +47,7 @@ export default function ReviewCard({ review }) {
                 <span className="ml-2 font-semibold">{review.rating}</span>
               </div>
             </div>
-            <p className="text-muted-foreground mb-4">{review.description}</p>
-            <div className="text-sm text-muted-foreground">
-              ID de reseña: {review.id}
-            </div>
+            <p className="text-muted-foreground mb-4">{review.descripcion}</p>
           </div>
         </div>
       </CardContent>
