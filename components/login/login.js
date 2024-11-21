@@ -27,7 +27,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2 gap-0 w-full">
+    <div className="min-h-[calc(100vh-112px)] grid md:grid-cols-2 gap-0 w-full">
       <div className="relative hidden md:block w-full">
         <Image
           alt="Fresh fruits and vegetables arrangement"
@@ -44,12 +44,12 @@ export default function Login() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold">Welcome back!</h1>
-                <p className="text-gray-500">
+                {/* <p className="text-gray-500">
                   Enter your Credentials to access your account
-                </p>
+                </p> */}
               </div>
               <div className="space-y-4">
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <label className="text-sm font-medium" htmlFor="email">
                     Email address
                   </label>
@@ -59,8 +59,8 @@ export default function Login() {
                     required
                     type="email"
                   />
-                </div>
-                <div className="space-y-2">
+                </div> */}
+                {/* <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium" htmlFor="password">
                       Password
@@ -73,14 +73,14 @@ export default function Login() {
                     </Link>
                   </div>
                   <Input id="password" required type="password" />
-                </div>
-                <div className="flex items-center space-x-2">
+                </div> */}
+                {/* <div className="flex items-center space-x-2">
                   <Checkbox id="remember" />
                   <label className="text-sm" htmlFor="remember">
                     Remember for 30 days
                   </label>
-                </div>
-                <Button
+                </div> */}
+                {/* <Button
                   className="w-full bg-orange-500 hover:bg-orange-600"
                   type="submit"
                 >
@@ -91,11 +91,9 @@ export default function Login() {
                     <div className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="px-2 text-muted-foreground">
-                      Or
-                    </span>
+                    <span className="px-2 text-muted-foreground">Or</span>
                   </div>
-                </div>
+                </div> */}
                 <div className="flex flex-wrap gap-[5px] justify-center">
                   <Button
                     disabled={isLoading}
@@ -127,7 +125,7 @@ export default function Login() {
                     )}
                     Sign in with Google
                   </Button>
-                  <Button className="w-full" variant="outline">
+                  {/* <Button className="w-full" variant="outline">
                     <svg
                       className="mr-2 h-4 w-4"
                       fill="currentColor"
@@ -136,9 +134,9 @@ export default function Login() {
                       <path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z" />
                     </svg>
                     Sign in with Apple
-                  </Button>
+                  </Button> */}
                 </div>
-                <div className="text-center text-sm">
+                {/* <div className="text-center text-sm">
                   Don&apos;t have an account?{" "}
                   <Link
                     className="text-blue-600 hover:underline"
@@ -146,7 +144,7 @@ export default function Login() {
                   >
                     Sign Up
                   </Link>
-                </div>
+                </div> */}
               </div>
             </div>
           </CardContent>

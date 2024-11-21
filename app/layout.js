@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
             <Navbar />
           </header>
           <main className="flex-grow w-full">{children}</main>
-          <footer className="bg-white shadow-sm mt-8 w-full">
+          <footer className="bg-white shadow-sm w-full">
             <div className="container mx-auto px-4 py-4 text-center text-gray-600">
               © 2023 FoodReview App
             </div>
