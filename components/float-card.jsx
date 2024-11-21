@@ -177,11 +177,11 @@ export default function FloatCard({
               className="max-w-[80px] object-cover"
             />
           </Link>
-          <div>
-            <Button onClick={handleAdd} className="bg-gray-900 text-white hover:bg-gray-800">
-              + Add Restaurant
-            </Button>
-          </div>
+        </div>
+        <div>
+          <Button onClick={handleAdd} className="bg-gray-900 text-white hover:bg-gray-800">
+            + Add Restaurant
+          </Button>
         </div>
       </CardHeader>
 

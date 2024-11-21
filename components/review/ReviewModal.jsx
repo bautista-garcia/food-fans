@@ -102,7 +102,7 @@ export default function ReviewModal({ idres }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Agregar Reseña</Button>
+        <Button >Agregar Reseña</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

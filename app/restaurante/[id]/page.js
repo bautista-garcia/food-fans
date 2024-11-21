@@ -39,11 +39,10 @@ export default function Component({ params: id }) {
     return Array.from({ length: 5 }).map((_, index) => (
       <Star
         key={index}
-        className={`w-5 h-5 ${
-          index < Math.floor(rating)
-            ? "text-yellow-400 fill-yellow-400"
-            : "text-gray-300"
-        }`}
+        className={`w-5 h-5 ${index < Math.floor(rating)
+          ? "text-yellow-400 fill-yellow-400"
+          : "text-gray-300"
+          }`}
       />
     ));
   };
@@ -103,7 +102,7 @@ export default function Component({ params: id }) {
 
           {/* Sección de Contenido */}
           <div className="max-w-7xl mx-auto px-4 py-8">
-            <div className="mb-8">
+            <div className="mb-8 ">
               <Button asChild>
                 <Link
                   href={restaurant.menu}
@@ -112,6 +111,9 @@ export default function Component({ params: id }) {
                   Ver Menú <ExternalLink className="w-4 h-4" />
                 </Link>
               </Button>
+              <div className="mt-6">
+                <ReviewModal idres={id.id} />
+              </div>
             </div>
 
             {/* Sección de Reseñas */}
@@ -125,9 +127,7 @@ export default function Component({ params: id }) {
                 </div>
               )}
             </div>
-            <div className="mt-6">
-              <ReviewModal idres={id.id} />
-            </div>
+
           </div>
         </div>
       )}

@@ -27,8 +27,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2 gap-0">
-      <div className="relative hidden md:block">
+    <div className="min-h-screen grid md:grid-cols-2 gap-0 w-full">
+      <div className="relative hidden md:block w-full">
         <Image
           alt="Fresh fruits and vegetables arrangement"
           className="object-cover object-left"
@@ -91,7 +91,7 @@ export default function Login() {
                     <div className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
+                    <span className="px-2 text-muted-foreground">
                       Or
                     </span>
                   </div>
