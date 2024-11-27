@@ -65,8 +65,15 @@ export async function pushReseñas(reseña) {
   return data[0];
 }
 
-
-
+// delete reseña
+export async function deleteReseña(id) {
+  const { data, error } = await supabase.from("Reseña").delete().eq("id", id);
+  if (error) {
+    console.error("Error al borrar la reseña:", error.message);
+    throw Error(error.message);
+  }
+  return data;
+}
 
 export async function uploadFile(file, bucket, filePath) {
   if (!file) {
@@ -80,7 +87,6 @@ export async function uploadFile(file, bucket, filePath) {
       upsert: false, // Evita sobrescribir archivos existentes
     });
 
-
   if (error) {
     console.error("Error al subir el archivo:", error.message);
     return { error: error.message };
@@ -90,19 +96,21 @@ export async function uploadFile(file, bucket, filePath) {
 }
 
 export async function getUrl(bucket, filePath, expiry = 60000000) {
-    if (!bucket || !filePath) {
-      return { signedUrl: null, error: 'El bucket o la ruta del archivo no fueron proporcionados.' };
-    }
-  
-    const { data, error } = await supabase
-      .storage
-      .from(bucket)
-      .createSignedUrl(filePath, expiry);
-  
-    if (error) {
-      console.error('Error al obtener la signed URL:', error.message);
-      return { signedUrl: null, error: error.message };
-    }
-  
-    return { signedUrl: data.signedUrl, error: null };
+  if (!bucket || !filePath) {
+    return {
+      signedUrl: null,
+      error: "El bucket o la ruta del archivo no fueron proporcionados.",
+    };
   }
+
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .createSignedUrl(filePath, expiry);
+
+  if (error) {
+    console.error("Error al obtener la signed URL:", error.message);
+    return { signedUrl: null, error: error.message };
+  }
+
+  return { signedUrl: data.signedUrl, error: null };
+}
