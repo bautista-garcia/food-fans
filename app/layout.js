@@ -2,6 +2,7 @@ import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 import "./globals.css";
 
 import Navbar from "@/components/navbar/Navbar";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata = {
   title: "FoodReview App",
@@ -17,6 +18,7 @@ export default function RootLayout({ children }) {
             <Navbar />
           </header>
           <main className="flex-grow w-full">{children}</main>
+          <Toaster />
           <footer className="bg-white shadow-sm w-full">
             <div className="container mx-auto px-4 py-4 text-center text-gray-600">
               © 2023 FoodReview App

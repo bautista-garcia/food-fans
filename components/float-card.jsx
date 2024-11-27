@@ -206,7 +206,7 @@ export default function FloatCard({
           <Link href="/" className="text-xl font-semibold text-gray-800">
             <Image
               src={logo}
-              alt="foodReview logo"
+              alt="foodrestaurant logo"
               className="max-w-[80px] object-cover"
             />
           </Link>

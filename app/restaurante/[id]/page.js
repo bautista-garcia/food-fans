@@ -13,6 +13,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Component({ params: id }) {
   const [restaurant, setRestaurant] = useState(null);
+  const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,6 +27,7 @@ export default function Component({ params: id }) {
         ]);
         setRestaurant(restaurantData);
         setReviews(reviewsData);
+        setRating(reviewsData.reduce((acc, review) => acc + review.rating, 0) / reviewsData.length || 0);
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch data");
@@ -34,6 +36,7 @@ export default function Component({ params: id }) {
     };
     fetchData(id.id);
   }, [id.id]);
+
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }).map((_, index) => (
@@ -87,9 +90,9 @@ export default function Component({ params: id }) {
               </div>
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-1">
-                  {renderStars(restaurant.rating)}
+                  {renderStars(rating)}
                   <span className="ml-2 font-semibold">
-                    {restaurant.rating}
+                    {rating.toFixed(1)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
