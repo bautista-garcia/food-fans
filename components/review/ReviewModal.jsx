@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import ImageUploader from "@/components/form/ImageUploader";
 import { uploadFile, getUrl, pushReseñas } from "@/utils/supabaseClient";
+import StarRating from "./StarRating";
+import { useRouter } from "next/navigation";
 
 export default function ReviewModal({ idres }) {
   const { data: session } = useSession();
@@ -27,6 +29,7 @@ export default function ReviewModal({ idres }) {
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -133,16 +136,7 @@ export default function ReviewModal({ idres }) {
 
           <div className="space-y-2">
             <Label htmlFor="rating">Rating</Label>
-            <Input
-              id="rating"
-              name="rating"
-              type="number"
-              min="0"
-              max="5"
-              step="0.1"
-              value={review.rating}
-              onChange={handleChange}
-            />
+            <StarRating rating={review.rating} onRatingChange={handleRatingChange} />
           </div>
 
           <div className="space-y-2">

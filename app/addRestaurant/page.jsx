@@ -9,7 +9,7 @@ export default function Page() {
       </h1>
       <div>
         <RestaurantForm />
-        <RestaurantList />
+        {/* <RestaurantList /> */}
       </div>
     </div>
   );
