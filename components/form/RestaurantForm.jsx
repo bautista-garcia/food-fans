@@ -7,6 +7,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { pushRestaurant, uploadFile, getUrl } from '@/utils/supabaseClient';
 import ImageUploader from '@/components/form/ImageUploader';
 import LocationAutocomplete from './LocationAutocomplete';
+import { useToast } from "@/hooks/use-toast"
+import { useRouter } from 'next/navigation';
 
 export default function RestaurantForm({ restauranteInicial = {} }){
   const [restaurante, setRestaurante] = useState({
@@ -23,10 +25,12 @@ export default function RestaurantForm({ restauranteInicial = {} }){
   const [locationData, setLocationData] = useState({
     address: '',
     coordinates: null,
-  })
+  });
+  const { toast } = useToast();
+  const router = useRouter();
 
   const handleLocationChange = (data) => {
-    setLocationData(data)
+    setLocationData(data);
   }
 
   const handleChange = (e) => {
@@ -46,22 +50,18 @@ export default function RestaurantForm({ restauranteInicial = {} }){
     setIsSubmitting(true);
 
     try {
-      // Subimos imagen y obtenemos URL del bucket
       let fotoUrl = '';
       if (file) {
         const bucketName = 'ff-images';
         const filePath = `restaurantes/${Date.now()}_${file.name}`;
-        console.log('filePath', filePath, "bucketName", bucketName, "file", file);
         const { error } = await uploadFile(file, bucketName, filePath);
         if (error) throw error;
 
         const { signedUrl, errorurl } = await getUrl(bucketName, filePath);
         if (errorurl) throw errorurl;
         fotoUrl = signedUrl;
-
       }
 
-      // Procesamos tags y agregamos URL
       const tags = restaurante.tags.split(',').map(tag => tag.trim());
       const newRestaurante = {
         ...restaurante,
@@ -72,12 +72,12 @@ export default function RestaurantForm({ restauranteInicial = {} }){
         foto: fotoUrl
       };
 
-      // Subimos restaurant a DB
-      console.log('newRestaurante', newRestaurante);
-      await pushRestaurant(newRestaurante);
+      const { error } = await pushRestaurant(newRestaurante);
+      if (error) {
+        throw error;
+      }
 
-
-      // Limpiar el formulario o redirigir según sea necesario
+      // Limpiar el formulario si todo está bien
       setRestaurante({
         nombre: '',
         tags: '',
@@ -88,9 +88,30 @@ export default function RestaurantForm({ restauranteInicial = {} }){
         menu: ''
       });
       setFile(null);
+      setLocationData({ address: '', coordinates: null });
+
+      toast({
+        title: "Éxito",
+        description: "El restaurante se ha guardado correctamente.",
+      });
+
+      router.push('/');
 
     } catch (error) {
       console.error('Error al guardar el restaurante:', error);
+      if (error.message.includes('duplicate key value violates unique constraint')) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Ya existe un restaurante con esa ubicación o nombre.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Ocurrió un error al guardar el restaurante. Por favor, inténtalo de nuevo.",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -131,29 +152,6 @@ export default function RestaurantForm({ restauranteInicial = {} }){
             />
           </div>
 
-          {/* <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="lat">Latitud</Label>
-              <Input
-                id="lat"
-                name="lat"
-                type="number"
-                value={restaurante.lat}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lng">Longitud</Label>
-              <Input
-                id="lng"
-                name="lng"
-                type="number"
-                value={restaurante.lng}
-                onChange={handleChange}
-              />
-            </div>
-          </div> */}
-
           <div className="space-y-2">
             <Label htmlFor="rating">Rating</Label>
             <Input
@@ -165,6 +163,7 @@ export default function RestaurantForm({ restauranteInicial = {} }){
               step="0.1"
               value={restaurante.rating}
               onChange={handleChange}
+              required
             />
           </div>
 
