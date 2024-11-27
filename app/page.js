@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import FloatCard from "@/components/float-card";
 import Map from "@/components/Map";
-import { getRestaurants, getReseñas } from "@/utils/supabaseClient";
+import { getRestaurants } from "@/utils/supabaseClient";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -12,9 +12,9 @@ const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 // Fetch de restaurantes DB (Ejemplo de campos en "components/restaurants/RestaurantList.jsx")
 
 export default function MapPage() {
-  const [restaurants, setrestaurants] = useState([]);
-  const [selectedrestaurant, setSelectedrestaurant] = useState(null);
-  const [filteredrestaurants, setFilteredrestaurants] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [filteredReviews, setFilteredReviews] = useState([]);
   const [selectedTags, setSelectedTags] = useState([]);
   const [minRating, setMinRating] = useState(1);
   const [viewState, setViewState] = useState({
@@ -22,15 +22,11 @@ export default function MapPage() {
     latitude: -34.9205,
     zoom: 13,
   });
-  const [rating, setRating] = useState(0);
-  const [reviews, setReviews] = useState([]);
 
   // Add state for sidebar position
   const [isDragging, setIsDragging] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(350); // Initial width in pixels
   const [initialCardPosition, setInitialCardPosition] = useState(null);
-
-  const [error, setError] = useState(null);
 
   const handleMouseDown = (e) => {
     setIsDragging(true);
@@ -55,10 +51,11 @@ export default function MapPage() {
   };
 
   useEffect(() => {
+    // In a real app, you'd fetch this data from an API
     const fetchRestaurants = async () => {
       try {
         const data = await getRestaurants();
-        setrestaurants(data);
+        setReviews(data);
       } catch (err) {
         setError("Failed to fetch restaurants");
       }
@@ -66,70 +63,33 @@ export default function MapPage() {
     fetchRestaurants();
   }, []);
 
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const data = await getReseñas();
-        setReviews(data);
-      } catch (err) {
-        setError("Failed to fetch restaurants");
-      }
-    };
-    fetchReviews();
-  }, []);
-
-  useEffect(() => {
-    if (restaurants.length > 0 && reviews.length > 0) {
-      const ratingsMap = {};
-
-      // Agrupar las reseñas por idres
-      reviews.forEach(({ idres, rating }) => {
-        if (!ratingsMap[idres]) {
-          ratingsMap[idres] = { total: 0, count: 0 };
-        }
-        ratingsMap[idres].total += rating;
-        ratingsMap[idres].count += 1;
-      });
-
-      // Calcular el promedio y actualizar los restaurantes
-      const updatedRestaurants = restaurants.map((restaurant) => ({
-        ...restaurant,
-        rating:
-          ratingsMap[restaurant.id]?.total / ratingsMap[restaurant.id]?.count ||
-          0, // Si no hay reseñas, asignar 0
-      }));
-
-      setrestaurants(updatedRestaurants);
-    }
-  }, [reviews]);
-
   const getAllTags = useCallback(() => {
     const tags = new Set();
-    restaurants.forEach((restaurant) => {
-      restaurant.tags.forEach((tag) => tags.add(tag));
+    reviews.forEach((review) => {
+      review.tags.forEach((tag) => tags.add(tag));
     });
     return Array.from(tags);
-  }, [restaurants]);
+  }, [reviews]);
 
   useEffect(() => {
-    let filtered = restaurants;
+    let filtered = reviews;
 
     if (selectedTags.length > 0) {
-      filtered = filtered.filter((restaurant) =>
-        restaurant.tags.some((tag) => selectedTags.includes(tag))
+      filtered = filtered.filter((review) =>
+        review.tags.some((tag) => selectedTags.includes(tag))
       );
     }
 
-    filtered = filtered.filter((restaurant) => restaurant.rating >= minRating);
+    filtered = filtered.filter((review) => review.rating >= minRating);
 
-    setFilteredrestaurants(filtered);
-  }, [restaurants, selectedTags, minRating]);
+    setFilteredReviews(filtered);
+  }, [reviews, selectedTags, minRating]);
 
-  const handlerestaurantClick = useCallback((restaurant) => {
-    setSelectedrestaurant(restaurant);
+  const handleReviewClick = useCallback((review) => {
+    setSelectedReview(review);
     setViewState({
-      longitude: restaurant.longitude,
-      latitude: restaurant.latitude,
+      longitude: review.longitude,
+      latitude: review.latitude,
       zoom: 12,
     });
   }, []);
@@ -143,9 +103,9 @@ export default function MapPage() {
 
   return (
     <div className="fixed inset-0 overflow-hidden">
-      {restaurants && (
+      {reviews && (
         <div>
-          <Map restaurants={filteredrestaurants} />
+          <Map reviews={filteredReviews} />
 
           {initialCardPosition && (
             <FloatCard
@@ -199,29 +159,29 @@ export default function MapPage() {
                   </div>
                 </div>
 
-                {/* restaurants List */}
+                {/* Reviews List */}
                 <div className="space-y-3 overflow-y-auto">
-                  {filteredrestaurants.map((restaurant) => (
+                  {filteredReviews.map((review) => (
                     <div
-                      key={restaurant.id}
-                      onClick={() => handlerestaurantClick(restaurant)}
+                      key={review.id}
+                      onClick={() => handleReviewClick(review)}
                       className="p-3 rounded-lg transition-all duration-200 cursor-pointer hover:bg-gray-50 border border-transparent hover:border-gray-100"
                     >
                       <div className="flex justify-between items-start mb-1">
                         <h3 className="font-medium text-gray-900">
-                          {restaurant.nombre}
+                          {review.nombre}
                         </h3>
                         <span className="text-sm text-gray-500">
-                          {"★".repeat(Math.round(restaurant.rating))}
-                          {"☆".repeat(5 - Math.round(restaurant.rating))}
+                          {"★".repeat(review.rating)}
+                          {"☆".repeat(5 - review.rating)}
                         </span>
                       </div>
                       <p className="text-sm text-gray-500 mb-1">
-                        {restaurant.ubicacion}
+                        {review.ubicacion}
                       </p>
                       <div className="flex justify-between">
                         <div className="flex flex-wrap gap-1">
-                          {restaurant.tags.map((tag) => (
+                          {review.tags.map((tag) => (
                             <span
                               key={tag}
                               className="text-xs px-2 py-0.5 bg-gray-50 text-gray-600 rounded-full"
@@ -230,8 +190,10 @@ export default function MapPage() {
                             </span>
                           ))}
                         </div>
-                        <Link href={`/restaurante/${restaurant.id}`}>
-                          <Button className="bg-gray-900 text-white hover:bg-gray-800">
+                        <Link href={`/restaurante/${review.id}`}>
+                          <Button
+                            className="bg-gray-900 text-white hover:bg-gray-800"
+                          >
                             Ver Reseñas
                           </Button>
                         </Link>
