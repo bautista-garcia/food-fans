@@ -17,7 +17,6 @@ export default function RestaurantForm({ restauranteInicial = {} }){
     ubicacion: restauranteInicial.ubicacion || '',
     lat: restauranteInicial.lat || '',
     lng: restauranteInicial.lng || '',
-    rating: restauranteInicial.rating || '',
     menu: restauranteInicial.menu || ''
   });
   const [file, setFile] = useState(null);
@@ -26,11 +25,12 @@ export default function RestaurantForm({ restauranteInicial = {} }){
     address: '',
     coordinates: null,
   });
+  const [errors, setErrors] = useState({});
   const { toast } = useToast();
-  const router = useRouter();
 
   const handleLocationChange = (data) => {
     setLocationData(data);
+    setErrors(prev => ({ ...prev, ubicacion: '' }));
   }
 
   const handleChange = (e) => {
@@ -39,14 +39,32 @@ export default function RestaurantForm({ restauranteInicial = {} }){
       ...prevState,
       [name]: value
     }));
+    setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleFileSelect = (selectedFile) => {
     setFile(selectedFile);
+    setErrors(prev => ({ ...prev, foto: '' }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!restaurante.nombre.trim()) newErrors.nombre = 'El nombre es requerido';
+    if (!locationData.address) newErrors.ubicacion = 'La ubicación es requerida';
+    if (!restaurante.rating) newErrors.rating = 'El rating es requerido';
+    if (!file) newErrors.foto = 'La foto es requerida';
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -84,7 +102,6 @@ export default function RestaurantForm({ restauranteInicial = {} }){
         ubicacion: '',
         lat: '',
         lng: '',
-        rating: '',
         menu: ''
       });
       setFile(null);
@@ -95,15 +112,13 @@ export default function RestaurantForm({ restauranteInicial = {} }){
         description: "El restaurante se ha guardado correctamente.",
       });
 
-      router.push('/');
-
     } catch (error) {
       console.error('Error al guardar el restaurante:', error);
       if (error.message.includes('duplicate key value violates unique constraint')) {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Ya existe un restaurante con esa ubicación o nombre.",
+          description: "Ya existe un restaurante con esa ubicación.",
         });
       } else {
         toast({
@@ -129,10 +144,11 @@ export default function RestaurantForm({ restauranteInicial = {} }){
             <Input
               id="nombre"
               name="nombre"
+              placeholder="Nombre del restaurante"
               value={restaurante.nombre}
               onChange={handleChange}
-              required
             />
+            {errors.nombre && <p className="text-sm text-red-500">{errors.nombre}</p>}
           </div>
 
           <div className="space-y-2">
@@ -140,36 +156,23 @@ export default function RestaurantForm({ restauranteInicial = {} }){
             <Input
               id="tags"
               name="tags"
+              placeholder="Ej: Comida rápida, Hamburguesas"
               value={restaurante.tags}
               onChange={handleChange}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="ubicacion">Ubicación</Label>
             <LocationAutocomplete
               onLocationChange={handleLocationChange}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="rating">Rating</Label>
-            <Input
-              id="rating"
-              name="rating"
-              type="number"
-              min="0"
-              max="5"
-              step="0.1"
-              value={restaurante.rating}
-              onChange={handleChange}
-              required
-            />
+            {errors.ubicacion && <p className="text-sm text-red-500">{errors.ubicacion}</p>}
           </div>
 
           <div className="space-y-2">
             <Label>Foto</Label>
             <ImageUploader onFileSelect={handleFileSelect} />
+            {errors.foto && <p className="text-sm text-red-500">{errors.foto}</p>}
           </div>
 
           <div className="space-y-2">
@@ -178,6 +181,7 @@ export default function RestaurantForm({ restauranteInicial = {} }){
               id="menu"
               name="menu"
               type="url"
+              placeholder="URL del menú del restaurante"
               value={restaurante.menu}
               onChange={handleChange}
             />
