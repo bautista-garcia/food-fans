@@ -6,8 +6,12 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import DeleteReviewButton from "./DeleteReviewButton";
+import { useSession } from "next-auth/react";
 
 export default function ReviewCard({ review }) {
+  const { data: session, status } = useSession();
+
   const renderStars = (rating) => {
     return Array.from({ length: 5 }).map((_, index) => (
       <Star
@@ -48,6 +52,13 @@ export default function ReviewCard({ review }) {
               </div>
             </div>
             <p className="text-muted-foreground mb-4">{review.descripcion}</p>
+            {/* Se comparan nombres para identificar si la reseña es de un usuario o no.
+             Hay que tener cuidado con esto, ya que puede tener problemas, pero por ahora creo que esta bien */}
+            {session?.user.name == review.usuario && (
+              <div className="w-full flex justify-end">
+                <DeleteReviewButton reviewId={review.id} />
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
