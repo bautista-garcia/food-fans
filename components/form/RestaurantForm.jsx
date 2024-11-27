@@ -27,6 +27,7 @@ export default function RestaurantForm({ restauranteInicial = {} }){
   });
   const [errors, setErrors] = useState({});
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleLocationChange = (data) => {
     setLocationData(data);
@@ -51,7 +52,6 @@ export default function RestaurantForm({ restauranteInicial = {} }){
     const newErrors = {};
     if (!restaurante.nombre.trim()) newErrors.nombre = 'El nombre es requerido';
     if (!locationData.address) newErrors.ubicacion = 'La ubicación es requerida';
-    if (!restaurante.rating) newErrors.rating = 'El rating es requerido';
     if (!file) newErrors.foto = 'La foto es requerida';
     
     setErrors(newErrors);
@@ -112,13 +112,16 @@ export default function RestaurantForm({ restauranteInicial = {} }){
         description: "El restaurante se ha guardado correctamente.",
       });
 
+      router.push("/")
+
+
     } catch (error) {
       console.error('Error al guardar el restaurante:', error);
       if (error.message.includes('duplicate key value violates unique constraint')) {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Ya existe un restaurante con esa ubicación.",
+          description: "Ya existe un restaurante con esa ubicación o nombre.",
         });
       } else {
         toast({
@@ -144,9 +147,9 @@ export default function RestaurantForm({ restauranteInicial = {} }){
             <Input
               id="nombre"
               name="nombre"
-              placeholder="Nombre del restaurante"
               value={restaurante.nombre}
               onChange={handleChange}
+              required
             />
             {errors.nombre && <p className="text-sm text-red-500">{errors.nombre}</p>}
           </div>
@@ -156,7 +159,6 @@ export default function RestaurantForm({ restauranteInicial = {} }){
             <Input
               id="tags"
               name="tags"
-              placeholder="Ej: Comida rápida, Hamburguesas"
               value={restaurante.tags}
               onChange={handleChange}
             />
@@ -181,7 +183,6 @@ export default function RestaurantForm({ restauranteInicial = {} }){
               id="menu"
               name="menu"
               type="url"
-              placeholder="URL del menú del restaurante"
               value={restaurante.menu}
               onChange={handleChange}
             />
@@ -196,4 +197,3 @@ export default function RestaurantForm({ restauranteInicial = {} }){
     </Card>
   );
 };
-
