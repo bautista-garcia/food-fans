@@ -80,7 +80,7 @@ export default function MapPage() {
       );
     }
 
-    filtered = filtered.filter((review) => review.rating >= minRating);
+    // filtered = filtered.filter((review) => review.rating >= minRating);
 
     setFilteredReviews(filtered);
   }, [reviews, selectedTags, minRating]);
