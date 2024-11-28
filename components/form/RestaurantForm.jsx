@@ -122,6 +122,8 @@ export default function RestaurantForm({ restauranteInicial = {} }) {
         description: "El restaurante se ha guardado correctamente.",
       });
 
+      // Force refresh and navigation
+      router.refresh();
       router.push("/");
     } catch (error) {
       console.error("Error al guardar el restaurante:", error);

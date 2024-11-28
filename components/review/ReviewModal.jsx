@@ -19,7 +19,7 @@ import StarRating from "./StarRating";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-export default function ReviewModal({ idres }) {
+export default function ReviewModal({ idres, onReviewAdded }) {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [review, setReview] = useState({
@@ -95,6 +95,13 @@ export default function ReviewModal({ idres }) {
       });
       setFile(null);
       setIsOpen(false);
+
+      if (onReviewAdded) {
+        onReviewAdded();
+      }
+
+      router.refresh();
+
     } catch (error) {
       console.error("Error al guardar la reseña:", error);
       setError(error.message);

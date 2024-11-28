@@ -19,6 +19,23 @@ export default function Component({ params: id }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const refreshReviews = async () => {
+    try {
+      const [restaurantData, reviewsData] = await Promise.all([
+        getRestaurant(id.id),
+        getReseña(id.id),
+      ]);
+      setRestaurant(restaurantData);
+      setReviews(reviewsData);
+      setFilteredReviews(reviewsData);
+      setRating(
+        reviewsData.reduce((acc, review) => acc + review.rating, 0) / reviewsData.length || 0
+      );
+    } catch (err) {
+      setError("Failed to fetch data");
+    }
+  };
+
   useEffect(() => {
     const fetchData = async (id) => {
       try {
@@ -124,7 +141,10 @@ export default function Component({ params: id }) {
                 </Link>
               </Button>
               <div className="mt-6">
-                <ReviewModal idres={id.id} />
+                <ReviewModal
+                  idres={id.id}
+                  onReviewAdded={refreshReviews}
+                />
               </div>
             </div>
 

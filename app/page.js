@@ -57,23 +57,39 @@ export default function MapPage() {
     return restaurantsWithReviews;
   };
 
+  const refreshData = async () => {
+    try {
+      const data = await getRestaurants();
+      const processedData = await processRestaurantsData(data);
+      setReviews(processedData);
+      setFilteredReviews(processedData);
+    } catch (err) {
+      console.error("Failed to fetch restaurants:", err);
+    }
+  };
+
+  // Add this useEffect back for the initial card position
   useEffect(() => {
     setInitialCardPosition({
       x: window.innerWidth - 450,
       y: 20,
     });
 
-    const fetchRestaurants = async () => {
-      try {
-        const data = await getRestaurants();
-        const processedData = await processRestaurantsData(data);
-        setReviews(processedData);
-      } catch (err) {
-        console.error("Failed to fetch restaurants:", err);
-      }
+    refreshData();
+  }, []); // Initial load
+
+  // Keep the focus refresh effect separate
+  useEffect(() => {
+    const handleFocus = () => {
+      refreshData();
     };
-    fetchRestaurants();
-  }, []); // Empty dependency array means this runs once on mount
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
 
   const getAllTags = useCallback(() => {
     const tags = new Set();
@@ -127,9 +143,9 @@ export default function MapPage() {
               minSize={{ width: 300, height: 400 }}
               maxSize={{ width: 600, height: window.innerHeight - 40 }}
             >
-              <div className="flex flex-col h-full overflow-hidden">
-                {/* Filter Section */}
-                <div className="mb-6 space-y-4">
+              <div className="flex flex-col h-full">
+                {/* Filter Section - Fixed at top with max-height */}
+                <div className="flex-shrink-0 space-y-4 p-4 border-b border-gray-100 max-h-[30%] overflow-y-auto thin-scrollbar">
                   <div>
                     <label className="text-sm text-gray-500 mb-2 block">
                       Tags
@@ -171,43 +187,47 @@ export default function MapPage() {
                   </div>
                 </div>
 
-                {/* Reviews List */}
-                <div className="space-y-3 overflow-y-auto">
-                  {filteredReviews.map((review) => (
-                    <div
-                      key={review.id}
-                      className="p-3 rounded-lg transition-all duration-200 cursor-pointer hover:bg-gray-50 border border-transparent hover:border-gray-100"
-                    >
-                      <div className="flex justify-between items-start mb-1">
-                        <h3 className="font-medium text-gray-900">
-                          {review.nombre}
-                        </h3>
-                        <StarRating rating={review.averageRating} />
-                      </div>
-                      <p className="text-sm text-gray-500 mb-1">
-                        {review.ubicacion}
-                      </p>
-                      <div className="flex justify-between">
-                        <div className="flex flex-wrap gap-1">
-                          {review.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="text-xs px-2 py-0.5 bg-gray-50 text-gray-600 rounded-full"
-                            >
-                              {tag}
-                            </span>
-                          ))}
+                {/* Reviews List - Scrollable with remaining height */}
+                <div className="flex-1 min-h-0 overflow-hidden">
+                  <div className="h-full overflow-y-auto px-4 py-4 thin-scrollbar">
+                    <div className="space-y-4 pb-4">
+                      {filteredReviews.map((review) => (
+                        <div
+                          key={review.id}
+                          className="p-3 rounded-lg transition-all duration-200 hover:bg-gray-50 border border-transparent hover:border-gray-100"
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <h3 className="font-medium text-gray-900">
+                              {review.nombre}
+                            </h3>
+                            <StarRating rating={review.averageRating} />
+                          </div>
+                          <p className="text-sm text-gray-500 mb-1">
+                            {review.ubicacion}
+                          </p>
+                          <div className="flex justify-between">
+                            <div className="flex flex-wrap gap-1">
+                              {review.tags.map((tag) => (
+                                <span
+                                  key={tag}
+                                  className="text-xs px-2 py-0.5 bg-gray-50 text-gray-600 rounded-full"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                            <Link href={`/restaurante/${review.id}`}>
+                              <Button
+                                className="bg-gray-900 text-white hover:bg-gray-800"
+                              >
+                                Ver Reseñas
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
-                        <Link href={`/restaurante/${review.id}`}>
-                          <Button
-                            className="bg-gray-900 text-white hover:bg-gray-800"
-                          >
-                            Ver Reseñas
-                          </Button>
-                        </Link>
-                      </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
             </FloatCard>
