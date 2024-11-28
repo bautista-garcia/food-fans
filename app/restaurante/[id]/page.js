@@ -4,9 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import ReviewCard from "@/components/review/ReviewCard";
-import { getRestaurant, getReseña, getReseñas } from "@/utils/supabaseClient";
+import { getRestaurant, getReseña } from "@/utils/supabaseClient";
 import { useEffect, useState } from "react";
 import ReviewModal from "@/components/review/ReviewModal";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -15,6 +14,8 @@ export default function Component({ params: id }) {
   const [restaurant, setRestaurant] = useState(null);
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState([]);
+  const [filteredReviews, setFilteredReviews] = useState([]);
+  const [minRating, setMinRating] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -27,6 +28,7 @@ export default function Component({ params: id }) {
         ]);
         setRestaurant(restaurantData);
         setReviews(reviewsData);
+        setFilteredReviews(reviewsData);
         setRating(reviewsData.reduce((acc, review) => acc + review.rating, 0) / reviewsData.length || 0);
         setLoading(false);
       } catch (err) {
@@ -37,6 +39,13 @@ export default function Component({ params: id }) {
     fetchData(id.id);
   }, [id.id]);
 
+  // Filter reviews based on minimum rating
+  useEffect(() => {
+    if (reviews) {
+      const filtered = reviews.filter((review) => review.rating >= minRating);
+      setFilteredReviews(filtered);
+    }
+  }, [reviews, minRating]);
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }).map((_, index) => (
@@ -121,12 +130,34 @@ export default function Component({ params: id }) {
 
             {/* Sección de Reseñas */}
             <div className="space-y-6">
-              <h2 className="text-2xl font-semibold">Reseñas</h2>
-              {reviews && (
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-semibold">Reseñas</h2>
+                <div className="flex items-center gap-4 w-64">
+                  <label className="text-sm text-gray-500">
+                    Rating {minRating}+
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="5"
+                    value={minRating}
+                    onChange={(e) => setMinRating(Number(e.target.value))}
+                    className="w-full accent-gray-900"
+                  />
+                </div>
+              </div>
+
+              {filteredReviews && (
                 <div className="space-y-4">
-                  {reviews.map((review) => (
-                    <ReviewCard key={review.id} review={review} />
-                  ))}
+                  {filteredReviews.length > 0 ? (
+                    filteredReviews.map((review) => (
+                      <ReviewCard key={review.id} review={review} />
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-center py-4">
+                      No hay reseñas con {minRating} o más estrellas
+                    </p>
+                  )}
                 </div>
               )}
             </div>
