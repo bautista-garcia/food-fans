@@ -14,6 +14,7 @@ import {
 import { LogOut, User } from "lucide-react";
 
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 
 export default function UserDropdown({
   userImage,
@@ -41,6 +42,10 @@ export default function UserDropdown({
             </p>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <Link href="/mis-restaurantes">Mis Restaurantes</Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => signOut({ callbackUrl: "http://localhost:3000" })}

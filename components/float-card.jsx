@@ -212,12 +212,22 @@ export default function FloatCard({
           </Link>
           <LoginWithGoogle />
         </div>
-        <div>
+        <div className="flex justify-between gap-[25px] flex-wrap">
           <Button
             onClick={handleAdd}
             className="bg-gray-900 text-white hover:bg-gray-800"
           >
-            + Add Restaurant
+            + Agregar Restaurante
+          </Button>
+          <Button
+            onClick={() => {
+              session
+                ? router.push("/mis-restaurantes")
+                : router.push("/login");
+            }}
+            className="bg-gray-900 text-white hover:bg-gray-800"
+          >
+            Mis Restaurantes
           </Button>
         </div>
       </CardHeader>
