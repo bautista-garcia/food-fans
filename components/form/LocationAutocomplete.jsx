@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { AddressAutofill } from "@mapbox/search-js-react";
+import dynamic from "next/dynamic";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Asegúrate de reemplazar 'TU_TOKEN_DE_MAPBOX' con tu token real de Mapbox
+// Dynamically import AddressAutofill to disable SSR
+const AddressAutofill = dynamic(() =>
+  import("@mapbox/search-js-react").then((mod) => mod.AddressAutofill),
+  { ssr: false }
+);
+
+// Asegúrate de reemplazar 'YOUR_MAPBOX_ACCESS_TOKEN' con tu token real de Mapbox
 const MAPBOX_ACCESS_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 export default function LocationAutocomplete({ onLocationChange }) {
@@ -40,15 +45,19 @@ export default function LocationAutocomplete({ onLocationChange }) {
   return (
     <div className="space-y-2">
       <Label htmlFor="address">Ubicacion</Label>
-      <AddressAutofill accessToken={MAPBOX_ACCESS_TOKEN}>
-        <Input
-          id="address"
-          placeholder="Ingresa una ubicación"
-          value={address}
-          onChange={(e) => handleAddressChange(e.target.value)}
-          autoComplete="address-line1"
-        />
-      </AddressAutofill>
+      {MAPBOX_ACCESS_TOKEN ? (
+        <AddressAutofill accessToken={MAPBOX_ACCESS_TOKEN}>
+          <Input
+            id="address"
+            placeholder="Ingresa una ubicación"
+            value={address}
+            onChange={(e) => handleAddressChange(e.target.value)}
+            autoComplete="address-line1"
+          />
+        </AddressAutofill>
+      ) : (
+        <p className="text-red-500">MAPBOX_ACCESS_TOKEN is missing!</p>
+      )}
     </div>
   );
 }

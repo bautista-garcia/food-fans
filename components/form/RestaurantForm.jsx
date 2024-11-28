@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { pushRestaurant, uploadFile, getUrl } from "@/utils/supabaseClient";
 import ImageUploader from "@/components/form/ImageUploader";
-import LocationAutocomplete from "./LocationAutocomplete";
+import LocationAutocomplete from "@/components/form/LocationAutocomplete";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
