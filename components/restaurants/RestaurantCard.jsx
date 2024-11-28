@@ -11,7 +11,7 @@ const RestaurantCard = ({ restaurant }) => {
   return (
     <Card
       className={`w-full max-w-sm mx-auto ${
-        !(session.user.name === restaurant.usuario) ? "hidden" : "block"
+        !(session?.user?.name === restaurant.usuario) ? "hidden" : "block"
       }`}
     >
       <CardHeader>

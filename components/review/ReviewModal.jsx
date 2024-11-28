@@ -17,6 +17,7 @@ import ImageUploader from "@/components/form/ImageUploader";
 import { uploadFile, getUrl, pushReseñas } from "@/utils/supabaseClient";
 import StarRating from "./StarRating";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function ReviewModal({ idres }) {
   const { data: session } = useSession();
@@ -105,7 +106,16 @@ export default function ReviewModal({ idres }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button >Agregar Reseña</Button>
+        {session ? (
+          <Button>Agregar Reseña</Button>
+        ) : (
+          <Link
+            href="/login"
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-neutral-950 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-neutral-300 bg-neutral-900 text-neutral-50 shadow hover:bg-neutral-900/90 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-50/90 h-9 px-4 py-2"
+          >
+            Agregar Reseña
+          </Link>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -136,7 +146,10 @@ export default function ReviewModal({ idres }) {
 
           <div className="space-y-2">
             <Label htmlFor="rating">Rating</Label>
-            <StarRating rating={review.rating} onRatingChange={handleRatingChange} />
+            <StarRating
+              rating={review.rating}
+              onRatingChange={handleRatingChange}
+            />
           </div>
 
           <div className="space-y-2">
