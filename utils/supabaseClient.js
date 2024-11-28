@@ -63,11 +63,12 @@ export async function getReseña(id) {
     .from("Reseña")
     .select("*")
     .eq("idres", id);
+
   if (error) {
-    console.error("error", error);
-  } else {
-    // console.log('res.id', data)
+    console.error("Error fetching reviews:", error);
+    return [];
   }
+
   return data;
 }
 
