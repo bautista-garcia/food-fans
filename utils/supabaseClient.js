@@ -36,6 +36,18 @@ export async function pushRestaurant(restaurant) {
   return data[0];
 }
 
+export async function deleteRestaurant(id) {
+  const { data, error } = await supabase
+    .from("Restaurant")
+    .delete()
+    .eq("id", id);
+  if (error) {
+    console.error("Error al borrar restaurante:", error.message);
+    throw Error(error.message);
+  }
+  return data;
+}
+
 export async function getReseñas() {
   const { data, error } = await supabase.from("Reseña").select("*");
   if (error) {

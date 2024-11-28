@@ -1,28 +1,36 @@
-"use client"
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { pushRestaurant, uploadFile, getUrl } from '@/utils/supabaseClient';
-import ImageUploader from '@/components/form/ImageUploader';
-import LocationAutocomplete from './LocationAutocomplete';
-import { useToast } from "@/hooks/use-toast"
-import { useRouter } from 'next/navigation';
+"use client";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { pushRestaurant, uploadFile, getUrl } from "@/utils/supabaseClient";
+import ImageUploader from "@/components/form/ImageUploader";
+import LocationAutocomplete from "./LocationAutocomplete";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-export default function RestaurantForm({ restauranteInicial = {} }){
+export default function RestaurantForm({ restauranteInicial = {} }) {
+  const { data: session } = useSession();
   const [restaurante, setRestaurante] = useState({
-    nombre: restauranteInicial.nombre || '',
-    tags: restauranteInicial.tags ? restauranteInicial.tags.join(', ') : '',
-    ubicacion: restauranteInicial.ubicacion || '',
-    lat: restauranteInicial.lat || '',
-    lng: restauranteInicial.lng || '',
-    menu: restauranteInicial.menu || ''
+    nombre: restauranteInicial.nombre || "",
+    tags: restauranteInicial.tags ? restauranteInicial.tags.join(", ") : "",
+    ubicacion: restauranteInicial.ubicacion || "",
+    lat: restauranteInicial.lat || "",
+    lng: restauranteInicial.lng || "",
+    menu: restauranteInicial.menu || "",
   });
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationData, setLocationData] = useState({
-    address: '',
+    address: "",
     coordinates: null,
   });
   const [errors, setErrors] = useState({});
@@ -31,46 +39,47 @@ export default function RestaurantForm({ restauranteInicial = {} }){
 
   const handleLocationChange = (data) => {
     setLocationData(data);
-    setErrors(prev => ({ ...prev, ubicacion: '' }));
-  }
+    setErrors((prev) => ({ ...prev, ubicacion: "" }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setRestaurante(prevState => ({
+    setRestaurante((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
-    setErrors(prev => ({ ...prev, [name]: '' }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleFileSelect = (selectedFile) => {
     setFile(selectedFile);
-    setErrors(prev => ({ ...prev, foto: '' }));
+    setErrors((prev) => ({ ...prev, foto: "" }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!restaurante.nombre.trim()) newErrors.nombre = 'El nombre es requerido';
-    if (!locationData.address) newErrors.ubicacion = 'La ubicación es requerida';
-    if (!file) newErrors.foto = 'La foto es requerida';
-    
+    if (!restaurante.nombre.trim()) newErrors.nombre = "El nombre es requerido";
+    if (!locationData.address)
+      newErrors.ubicacion = "La ubicación es requerida";
+    if (!file) newErrors.foto = "La foto es requerida";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setIsSubmitting(true);
 
     try {
-      let fotoUrl = '';
+      let fotoUrl = "";
       if (file) {
-        const bucketName = 'ff-images';
+        const bucketName = "ff-images";
         const filePath = `restaurantes/${Date.now()}_${file.name}`;
         const { error } = await uploadFile(file, bucketName, filePath);
         if (error) throw error;
@@ -80,14 +89,15 @@ export default function RestaurantForm({ restauranteInicial = {} }){
         fotoUrl = signedUrl;
       }
 
-      const tags = restaurante.tags.split(',').map(tag => tag.trim());
+      const tags = restaurante.tags.split(",").map((tag) => tag.trim());
       const newRestaurante = {
         ...restaurante,
         ubicacion: locationData.address,
         lat: locationData.coordinates.lat,
         lng: locationData.coordinates.lng,
         tags,
-        foto: fotoUrl
+        foto: fotoUrl,
+        usuario: session.user.name,
       };
 
       const { error } = await pushRestaurant(newRestaurante);
@@ -97,27 +107,27 @@ export default function RestaurantForm({ restauranteInicial = {} }){
 
       // Limpiar el formulario si todo está bien
       setRestaurante({
-        nombre: '',
-        tags: '',
-        ubicacion: '',
-        lat: '',
-        lng: '',
-        menu: ''
+        nombre: "",
+        tags: "",
+        ubicacion: "",
+        lat: "",
+        lng: "",
+        menu: "",
       });
       setFile(null);
-      setLocationData({ address: '', coordinates: null });
+      setLocationData({ address: "", coordinates: null });
 
       toast({
         title: "Éxito",
         description: "El restaurante se ha guardado correctamente.",
       });
 
-      router.push("/")
-
-
+      router.push("/");
     } catch (error) {
-      console.error('Error al guardar el restaurante:', error);
-      if (error.message.includes('duplicate key value violates unique constraint')) {
+      console.error("Error al guardar el restaurante:", error);
+      if (
+        error.message.includes("duplicate key value violates unique constraint")
+      ) {
         toast({
           variant: "destructive",
           title: "Error",
@@ -127,7 +137,8 @@ export default function RestaurantForm({ restauranteInicial = {} }){
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Ocurrió un error al guardar el restaurante. Por favor, inténtalo de nuevo.",
+          description:
+            "Ocurrió un error al guardar el restaurante. Por favor, inténtalo de nuevo.",
         });
       }
     } finally {
@@ -151,7 +162,9 @@ export default function RestaurantForm({ restauranteInicial = {} }){
               onChange={handleChange}
               required
             />
-            {errors.nombre && <p className="text-sm text-red-500">{errors.nombre}</p>}
+            {errors.nombre && (
+              <p className="text-sm text-red-500">{errors.nombre}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -165,16 +178,18 @@ export default function RestaurantForm({ restauranteInicial = {} }){
           </div>
 
           <div className="space-y-2">
-            <LocationAutocomplete
-              onLocationChange={handleLocationChange}
-            />
-            {errors.ubicacion && <p className="text-sm text-red-500">{errors.ubicacion}</p>}
+            <LocationAutocomplete onLocationChange={handleLocationChange} />
+            {errors.ubicacion && (
+              <p className="text-sm text-red-500">{errors.ubicacion}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label>Foto</Label>
             <ImageUploader onFileSelect={handleFileSelect} />
-            {errors.foto && <p className="text-sm text-red-500">{errors.foto}</p>}
+            {errors.foto && (
+              <p className="text-sm text-red-500">{errors.foto}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -190,10 +205,10 @@ export default function RestaurantForm({ restauranteInicial = {} }){
         </CardContent>
         <CardFooter>
           <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : 'Guardar'}
+            {isSubmitting ? "Guardando..." : "Guardar"}
           </Button>
         </CardFooter>
       </form>
     </Card>
   );
-};
+}
